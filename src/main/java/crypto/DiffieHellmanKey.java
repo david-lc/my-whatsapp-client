@@ -1,3 +1,5 @@
+package crypto;
+
 import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.DHPrivateKeySpec;
 import javax.crypto.spec.DHPublicKeySpec;
@@ -5,6 +7,8 @@ import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import common.Constants;
+
 
 public class DiffieHellmanKey {
     private BigInteger pubKey;
@@ -21,6 +25,9 @@ public class DiffieHellmanKey {
 
             DHPublicKeySpec publicKeySpec = kfactory.getKeySpec(kp.getPublic(), DHPublicKeySpec.class);
             DHPrivateKeySpec privateKeySpec = kfactory.getKeySpec(kp.getPrivate(), DHPrivateKeySpec.class);
+
+            pubKey = publicKeySpec.getY();
+            privKey = privateKeySpec.getX();
         } catch (Exception e) {
             e.printStackTrace();
         }

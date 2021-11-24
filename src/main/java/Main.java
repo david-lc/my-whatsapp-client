@@ -1,5 +1,9 @@
+import crypto.DiffieHellmanKey;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hola mundo");
+        DiffieHellmanKey key = new DiffieHellmanKey();
+        System.out.println(key.getPubKey());
+        System.out.println(key.getPrivKey());
     }
 }
