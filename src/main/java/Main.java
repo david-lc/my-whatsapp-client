@@ -1,9 +1,7 @@
-import crypto.DiffieHellmanKey;
+import common.Menu;
 
 public class Main {
     public static void main(String[] args) {
-        DiffieHellmanKey key = new DiffieHellmanKey();
-        System.out.println(key.getPubKey());
-        System.out.println(key.getPrivKey());
+        (new Menu()).display();
     }
 }
