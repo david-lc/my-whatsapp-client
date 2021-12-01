@@ -1,8 +1,17 @@
 package common;
 
+import crypto.AES;
 import mqtt.MQTT;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
 public final class Menu {
@@ -44,10 +53,11 @@ public final class Menu {
     }
 
     private void startConversation() throws MqttException {
+        System.out.println("Puede empezar a enviar mensajes:\n");
+
         String message = "";
 
         while(!message.equals("FIN")) {
-            System.out.print("Escriba: ");
             message = input.nextLine();
             this.mqtt.sendMessage(message);
         }
