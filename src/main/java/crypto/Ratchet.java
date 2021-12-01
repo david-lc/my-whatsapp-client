@@ -2,13 +2,16 @@ package crypto;
 
 import javax.crypto.Mac;
 import java.math.BigInteger;
+import java.security.InvalidKeyException;
 
 public abstract class Ratchet {
-    protected BigInteger rootKey;
+    protected byte[] rootKey;
 
-    public Ratchet(BigInteger key) {
+    public Ratchet(byte[] key) {
         rootKey = key;
+        generateMAC();
     }
 
-    public abstract BigInteger iterate();
+    protected abstract void generateMAC();
+    public abstract byte[] iterate(byte[] input) throws InvalidKeyException;
 }

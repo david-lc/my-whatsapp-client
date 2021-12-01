@@ -1,27 +1,35 @@
 package crypto;
 
+import common.Constants;
 import crypto.Ratchet;
 
 import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
+import java.security.InvalidKeyException;
 
 public class SymmetricKeyRatchet extends Ratchet {
-    private Mac MAC;
+    private Mac mac;
 
-    public SymmetricKeyRatchet(BigInteger key) {
+    public SymmetricKeyRatchet(byte[] key) {
         super(key);
-        generateMAC();
     }
 
-    private void generateMAC() {
+    protected void generateMAC() {
         try {
-            MAC = Mac.getInstance("HmacSHA512");
+            mac = Mac.getInstance("HmacSHA512");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public BigInteger iterate() {
+    public byte[] iterate(byte[] input) throws InvalidKeyException {
+        SecretKeySpec sks = new SecretKeySpec(rootKey, "RawBytes");
+        mac.init(sks);
+        mac.update(Constants.SYM_RATCHET_INFO);
+        byte[] result = mac.doFinal();
+
+        System.out.println(result.length);
         return null;
     }
 }
