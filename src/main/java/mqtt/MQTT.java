@@ -1,14 +1,12 @@
 package mqtt;
 
 import common.Constants;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 public final class MQTT {
     private String senderId, receiverId, publicationChannel, subscriptionChannel;
-    private MqttClient subscriber, publisher;
+    private IMqttClient client;
 
     public MQTT(String senderId, String receiverId, String publicationChannel, String subscriptionChannel) throws MqttException {
         this.senderId = senderId;
@@ -16,30 +14,34 @@ public final class MQTT {
         this.publicationChannel = publicationChannel;
         this.subscriptionChannel = subscriptionChannel;
 
-        this.startPublisher();
-        this.startSubscriber();
+        this.startClient();
     }
 
-    private void startPublisher() throws MqttException {
+    private void startClient() throws MqttException {
         MemoryPersistence session = new MemoryPersistence();
 
-        this.publisher = new MqttClient(Constants.BROKER_URL, this.senderId, session);
-        this.publisher.connect();
-    }
+        this.client = new MqttClient(Constants.BROKER_URL, this.senderId, session);
+        this.client.connect();
 
-    private void startSubscriber() throws MqttException {
-        MemoryPersistence session = new MemoryPersistence();
-
-        this.subscriber = new MqttClient(Constants.BROKER_URL, this.senderId, session);
-        this.subscriber.setCallback(new SubscribeCallback());
-        this.subscriber.connect();
-        this.subscriber.subscribe(this.subscriptionChannel);
+        this.client.setCallback(new SubscribeCallback(this.receiverId));
+        this.client.subscribe(this.subscriptionChannel);
+        //MqttConnectOptions options = new MqttConnectOptions();
+        //options.setAutomaticReconnect(true);
+        //options.setCleanSession(true);
+        //options.setConnectionTimeout(10);
+        //publisher.connect(options);
     }
 
     public void sendMessage(String textMessage) throws MqttException {
         MqttMessage message = new MqttMessage(textMessage.getBytes());
         message.setQos(2);
 
-        this.publisher.publish(this.publicationChannel, message);
+        this.client.publish(this.publicationChannel, message);
+    }
+
+    public void finishClient() throws MqttException {
+        this.client.unsubscribe(this.subscriptionChannel);
+        this.client.disconnect();
+        this.client.close();
     }
 }

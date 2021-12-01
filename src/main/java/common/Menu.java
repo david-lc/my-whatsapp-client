@@ -7,9 +7,22 @@ import java.util.Scanner;
 
 public final class Menu {
     private static final Scanner input = new Scanner(System.in);
+    private MQTT mqtt;
 
     public void display(){
-        MQTT mqtt = null;
+        try{
+            this.identifyClient();
+            this.startConversation();
+            this.finish();
+
+        } catch(MqttException me){
+            System.out.println("Error de MQTT: " + me.getMessage());
+        } catch(Exception e){
+            System.out.println("Error general: " + e.getMessage());
+        }
+    }
+
+    private void identifyClient() throws MqttException {
         int option = -1;
 
         while(option < 1 || option > 2) {
@@ -18,18 +31,29 @@ public final class Menu {
                 option = Integer.parseInt(input.nextLine());
 
                 if(option == 1)
-                    mqtt = new MQTT(Constants.CLIENT_ALICE, Constants.CLIENT_BOB, Constants.CHANNEL_ALICE, Constants.CHANNEL_BOB);
+                    this.mqtt = new MQTT(Constants.CLIENT_ALICE, Constants.CLIENT_BOB, Constants.CHANNEL_ALICE, Constants.CHANNEL_BOB);
                 else if (option == 2)
-                    mqtt = new MQTT(Constants.CLIENT_BOB, Constants.CLIENT_ALICE, Constants.CHANNEL_BOB, Constants.CHANNEL_ALICE);
+                    this.mqtt = new MQTT(Constants.CLIENT_BOB, Constants.CLIENT_ALICE, Constants.CHANNEL_BOB, Constants.CHANNEL_ALICE);
                 else
                     throw new NumberFormatException();
             }
             catch (NumberFormatException nfe){
                 System.out.println("Introduzca un número válido (1 o 2).");
-            } catch (MqttException me) {
-                System.out.println("Error: " + me.getMessage());
             }
         }
+    }
 
+    private void startConversation() throws MqttException {
+        String message = "";
+
+        while(!message.equals("FIN")) {
+            System.out.print("Escriba: ");
+            message = input.nextLine();
+            this.mqtt.sendMessage(message);
+        }
+    }
+
+    private void finish() throws MqttException {
+        this.mqtt.finishClient();
     }
 }
