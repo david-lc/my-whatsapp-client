@@ -24,6 +24,7 @@ public class DiffieHellmanKey {
         pubKey = kp.getPublic();
         privKey = kp.getPrivate();
 
+
 }
 
     public PublicKey getPubKey() {

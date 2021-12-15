@@ -5,8 +5,8 @@ import crypto.Ratchet;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.math.BigInteger;
 import java.security.InvalidKeyException;
+import java.util.Arrays;
 
 public class SymmetricKeyRatchet extends Ratchet {
     private Mac mac;
@@ -23,13 +23,11 @@ public class SymmetricKeyRatchet extends Ratchet {
         }
     }
 
-    public byte[] iterate(byte[] input) throws InvalidKeyException {
+    protected byte[] obtainBytes(byte[] input) throws InvalidKeyException {
         SecretKeySpec sks = new SecretKeySpec(rootKey, "RawBytes");
         mac.init(sks);
         mac.update(Constants.SYM_RATCHET_INFO);
-        byte[] result = mac.doFinal();
+        return mac.doFinal();
 
-        System.out.println(result.length);
-        return null;
     }
 }
