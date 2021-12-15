@@ -1,7 +1,9 @@
 package common;
 
 import crypto.AES;
+import crypto.DiffieHellmanKey;
 import mqtt.MQTT;
+import mqtt.Message;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import javax.crypto.BadPaddingException;
@@ -9,6 +11,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -20,6 +23,9 @@ public final class Menu {
 
     public void display(){
         try{
+
+
+
             this.identifyClient();
             this.startConversation();
             this.finish();
@@ -52,14 +58,18 @@ public final class Menu {
         }
     }
 
-    private void startConversation() throws MqttException {
+    private void startConversation() throws MqttException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException {
+        DiffieHellmanKey keys = new DiffieHellmanKey();
+
+        this.mqtt.sendMessage(keys.getPubKey(), null);
+
         System.out.println("Puede empezar a enviar mensajes:\n");
 
         String message = "";
 
         while(!message.equals("FIN")) {
-            message = input.nextLine();
-            this.mqtt.sendMessage(message);
+            //message = input.nextLine();
+            //this.mqtt.sendMessage(message);
         }
     }
 
