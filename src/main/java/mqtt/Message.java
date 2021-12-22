@@ -14,6 +14,12 @@ public class Message implements Serializable {
         this.payload = payload;
     }
 
+    public Message(PublicKey publicKey, byte[] payload) {
+        this.publicKey = publicKey;
+        this.payload = payload;
+    }
+
+
     public String getSenderId() {
         return senderId;
     }
@@ -24,5 +30,9 @@ public class Message implements Serializable {
 
     public byte[] getPayload() {
         return payload;
+    }
+
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
     }
 }

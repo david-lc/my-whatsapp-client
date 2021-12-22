@@ -2,8 +2,10 @@ package common;
 
 import crypto.AES;
 import crypto.DiffieHellmanKey;
+import crypto.DiffieHellmanRatchet;
 import mqtt.MQTT;
 import mqtt.Message;
+import mqtt.UserInfo;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import javax.crypto.BadPaddingException;
@@ -20,24 +22,31 @@ import java.util.Scanner;
 public final class Menu {
     private static final Scanner input = new Scanner(System.in);
     private MQTT mqtt;
+    private UserInfo userInfo;
 
-    public void display(){
-        try{
+    public void display() {
+        try {
 
 
-
+            userInfo = new UserInfo();
             this.identifyClient();
             this.startConversation();
             this.finish();
 
-        } catch(MqttException me){
+        } catch (MqttException me) {
             System.out.println("Error de MQTT: " + me.getMessage());
-        } catch(Exception e){
+
+        } catch (InvalidAlgorithmParameterException iape) {
+            System.out.println("Error de parámetro: " + iape.getMessage());
+        } catch (NoSuchAlgorithmException nsae) {
+            System.out.println("Error de algoritmo: " + nsae.getMessage());
+        } catch (Exception e) {
             System.out.println("Error general: " + e.getMessage());
         }
     }
 
-    private void identifyClient() throws MqttException {
+
+        private void identifyClient() throws MqttException {
         int option = -1;
 
         while(option < 1 || option > 2) {
@@ -46,9 +55,9 @@ public final class Menu {
                 option = Integer.parseInt(input.nextLine());
 
                 if(option == 1)
-                    this.mqtt = new MQTT(Constants.CLIENT_ALICE, Constants.CLIENT_BOB, Constants.CHANNEL_ALICE, Constants.CHANNEL_BOB);
+                    this.mqtt = new MQTT(Constants.CLIENT_ALICE, Constants.CLIENT_BOB, Constants.CHANNEL_ALICE, Constants.CHANNEL_BOB, userInfo);
                 else if (option == 2)
-                    this.mqtt = new MQTT(Constants.CLIENT_BOB, Constants.CLIENT_ALICE, Constants.CHANNEL_BOB, Constants.CHANNEL_ALICE);
+                    this.mqtt = new MQTT(Constants.CLIENT_BOB, Constants.CLIENT_ALICE, Constants.CHANNEL_BOB, Constants.CHANNEL_ALICE, userInfo);
                 else
                     throw new NumberFormatException();
             }
@@ -58,18 +67,27 @@ public final class Menu {
         }
     }
 
-    private void startConversation() throws MqttException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException {
-        DiffieHellmanKey keys = new DiffieHellmanKey();
-
-        this.mqtt.sendMessage(keys.getPubKey(), null);
+    private void startConversation() throws MqttException, IOException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException {
+        //Crear mensaje inicial
+        Message initMessage = userInfo.createEmptyMessage();
+        this.mqtt.sendMessage(initMessage);
 
         System.out.println("Puede empezar a enviar mensajes:\n");
 
-        String message = "";
+        String messageText = "";
 
-        while(!message.equals("FIN")) {
-            //message = input.nextLine();
-            //this.mqtt.sendMessage(message);
+        while(!messageText.equals("FIN")) {
+            //Leer entrada
+            messageText = input.nextLine();
+
+            try {
+                //Crear mensaje a partir de la entrada
+                Message message = userInfo.createMessage(messageText);
+                this.mqtt.sendMessage(message);
+
+            } catch (NoSuchFieldException nsfe) {
+                System.out.println("Excepción de clave compartida: " + nsfe.getMessage());
+            }
         }
     }
 
