@@ -26,5 +26,4 @@ public class Constants {
     public static final int SYMMETRIC_KEY_BYTES = 16;
     public static final int GCM_TAG_BYTES = 16;
     public static final int IV_BYTES = 12;
-
 }

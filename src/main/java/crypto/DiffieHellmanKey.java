@@ -2,9 +2,6 @@ package crypto;
 
 import javax.crypto.KeyAgreement;
 import javax.crypto.spec.DHParameterSpec;
-import javax.crypto.spec.DHPrivateKeySpec;
-import javax.crypto.spec.DHPublicKeySpec;
-import java.math.BigInteger;
 import java.security.*;
 
 import common.Constants;
@@ -23,24 +20,10 @@ public class DiffieHellmanKey {
 
         pubKey = kp.getPublic();
         privKey = kp.getPrivate();
-
-
 }
 
     public PublicKey getPubKey() {
         return pubKey;
-    }
-
-    public void setPubKey(PublicKey pubKey) {
-        this.pubKey = pubKey;
-    }
-
-    public PrivateKey getPrivKey() {
-        return privKey;
-    }
-
-    public void setPrivKey(PrivateKey privKey) {
-        this.privKey = privKey;
     }
 
     public byte[] getSharedKey(PublicKey otherPubKey) throws NoSuchAlgorithmException, InvalidKeyException {

@@ -28,6 +28,5 @@ public class SymmetricKeyRatchet extends Ratchet {
         mac.init(sks);
         mac.update(Constants.SYM_RATCHET_INFO);
         return mac.doFinal();
-
     }
 }

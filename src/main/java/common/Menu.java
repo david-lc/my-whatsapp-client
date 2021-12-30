@@ -1,8 +1,5 @@
 package common;
 
-import crypto.AES;
-import crypto.DiffieHellmanKey;
-import crypto.DiffieHellmanRatchet;
 import mqtt.MQTT;
 import mqtt.Message;
 import mqtt.UserInfo;
@@ -11,8 +8,6 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -26,16 +21,13 @@ public final class Menu {
 
     public void display() {
         try {
-
-
             userInfo = new UserInfo();
             this.identifyClient();
             this.startConversation();
             this.finish();
 
         } catch (MqttException me) {
-            System.out.println("Error de MQTT: " + me.getMessage());
-
+            System.out.println("Error de MQTT: " + me);
         } catch (InvalidAlgorithmParameterException iape) {
             System.out.println("Error de parámetro: " + iape.getMessage());
         } catch (NoSuchAlgorithmException nsae) {
@@ -44,7 +36,6 @@ public final class Menu {
             System.out.println("Error general: " + e.getMessage());
         }
     }
-
 
         private void identifyClient() throws MqttException {
         int option = -1;

@@ -4,24 +4,20 @@ import java.io.Serializable;
 import java.security.PublicKey;
 
 public class Message implements Serializable {
-    private String senderId;
     private PublicKey publicKey;
+    private byte[] iv;
     private byte[] payload;
 
-    public Message(String senderId, PublicKey publicKey, byte[] payload) {
-        this.senderId = senderId;
+    public Message(PublicKey publicKey, byte[] iv, byte[] payload) {
         this.publicKey = publicKey;
+        this.iv = iv;
         this.payload = payload;
     }
 
-    public Message(PublicKey publicKey, byte[] payload) {
+    public Message(PublicKey publicKey) {
         this.publicKey = publicKey;
-        this.payload = payload;
-    }
-
-
-    public String getSenderId() {
-        return senderId;
+        this.iv = null;
+        this.payload = null;
     }
 
     public PublicKey getPublicKey() {
@@ -32,7 +28,5 @@ public class Message implements Serializable {
         return payload;
     }
 
-    public void setSenderId(String senderId) {
-        this.senderId = senderId;
-    }
+    public byte[] getIv() { return iv; }
 }
