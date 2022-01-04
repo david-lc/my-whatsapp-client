@@ -27,7 +27,7 @@ public final class MQTT {
         this.client = new MqttClient(Constants.BROKER_URL, this.senderId, session);
         MqttConnectOptions options = new MqttConnectOptions();
         options.setAutomaticReconnect(true);
-        options.setCleanSession(false);
+        options.setCleanSession(true);
         options.setConnectionTimeout(10);
         this.client.connect(options);
 

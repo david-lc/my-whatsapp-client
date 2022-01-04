@@ -41,6 +41,12 @@ public final class Menu {
         int option = -1;
 
         while(option < 1 || option > 2) {
+
+        System.out.print("Quiere iniciar el programa en modo \"DEBUG\" (S/n): ");
+        String debug = input.nextLine();
+        boolean debugMode = debug.equals("S") || debug.equals("s");
+
+        userInfo.setDebug(debugMode);
             try {
                 System.out.print("Los interlocutores son: \n1) Alice\n2) Bob\n¿Quién eres? (1 o 2): ");
                 option = Integer.parseInt(input.nextLine());

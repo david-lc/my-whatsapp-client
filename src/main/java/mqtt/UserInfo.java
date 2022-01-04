@@ -25,6 +25,8 @@ public class UserInfo {
     private SymmetricKeyRatchet receiveSymRatchet;
     private SymmetricKeyRatchet sendSymRatchet;
 
+    private boolean debug;
+
     public UserInfo() throws InvalidAlgorithmParameterException, NoSuchAlgorithmException {
 
         //Crear claves iniciales y DHRatchet
@@ -40,10 +42,10 @@ public class UserInfo {
 
         //Cifrar contenido
         byte[] messageKey = sendSymRatchet.iterate(Constants.NULL_BYTE_ARRAY);
-        System.out.println("Ratchet de envío: clave generada -> " + AES.bytesToHexString(messageKey));
+        printDebug("Ratchet de envío: clave generada -> " + AES.bytesToHexString(messageKey));
 
         byte[] iv = AES.generateIVBytes();
-        System.out.println("Cliente: IV generado -> " + AES.bytesToHexString(iv));
+        printDebug("Cliente: IV generado -> " + AES.bytesToHexString(iv));
 
         SecretKey key = new SecretKeySpec(messageKey, "AES");
         byte[] payload = AES.encrypt(messageText.getBytes(StandardCharsets.UTF_8), key, iv);
@@ -53,7 +55,7 @@ public class UserInfo {
     }
 
     public Message createEmptyMessage() {
-        System.out.println("Mensaje inicial enviado");
+        printDebug("Mensaje inicial enviado");
         //Devolver mensaje vacio
         return new Message(selfKey.getPubKey());
     }
@@ -63,14 +65,14 @@ public class UserInfo {
         //Primera iteracion, o recibir nueva clave publica
         if((otherPK == null) || (!Arrays.equals(newPK.getEncoded(), otherPK.getEncoded()))) {
             otherPK = newPK;
-            System.out.println("Cliente: nueva PK recibida -> " + AES.bytesToHexString(otherPK.getEncoded()));
+            printDebug("Cliente: nueva PK recibida -> " + AES.bytesToHexString(otherPK.getEncoded()));
 
             //Calcular secreto compartido e iterar el DHRatchet
             byte[] sharedSecret = selfKey.getSharedKey(newPK);
-            System.out.println("Cliente: secreto DH calculado -> " + AES.bytesToHexString(sharedSecret));
+            printDebug("Cliente: secreto DH calculado -> " + AES.bytesToHexString(sharedSecret));
 
             byte[] symRoot = dhRatchet.iterate(sharedSecret);
-            System.out.println("Ratchet DH: clave raíz generada para los ratchets simétricos -> " + AES.bytesToHexString(symRoot));
+            printDebug("Ratchet DH: clave raíz generada para los ratchets simétricos -> " + AES.bytesToHexString(symRoot));
 
             receiveSymRatchet = new SymmetricKeyRatchet(symRoot);
 
@@ -83,15 +85,15 @@ public class UserInfo {
         byte[] payload = message.getPayload();
 
         if(payload != null) {
-            System.out.println("Mensaje recibido: " + payload);
+            printDebug("Mensaje recibido: " + payload);
             byte[] messageKey = receiveSymRatchet.iterate(Constants.NULL_BYTE_ARRAY);
             SecretKey key = new SecretKeySpec(messageKey, "AES");
 
-            System.out.println("Ratchet de recepción: clave generada -> " + AES.bytesToHexString(key.getEncoded()));
+            printDebug("Ratchet de recepción: clave generada -> " + AES.bytesToHexString(key.getEncoded()));
 
             byte[] iv = message.getIv();
 
-            System.out.println("Cliente: IV recuperado -> " + AES.bytesToHexString(iv));
+            printDebug("Cliente: IV recuperado -> " + AES.bytesToHexString(iv));
 
             byte[] decodedPayload = AES.decrypt(payload, key, iv);
             String decodedText = new String(decodedPayload);
@@ -99,5 +101,13 @@ public class UserInfo {
             return decodedText;
         }
         else return null;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
+    private void printDebug(String message) {
+        if(debug) System.out.println(message);
     }
 }
