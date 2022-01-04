@@ -62,24 +62,33 @@ public class UserInfo {
 
     public String processMessage(Message message) throws NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
         PublicKey newPK = message.getPublicKey();
+
         //Primera iteracion, o recibir nueva clave publica
         if((otherPK == null) || (!Arrays.equals(newPK.getEncoded(), otherPK.getEncoded()))) {
+            boolean skipReceiveRatchet = ((otherPK == null) && (message.getPayload() == null));
             otherPK = newPK;
             printDebug("Cliente: nueva PK recibida -> " + AES.bytesToHexString(otherPK.getEncoded()));
 
-            //Calcular secreto compartido e iterar el DHRatchet
-            byte[] sharedSecret = selfKey.getSharedKey(newPK);
-            printDebug("Cliente: secreto DH calculado -> " + AES.bytesToHexString(sharedSecret));
+            if(!skipReceiveRatchet) {
 
-            byte[] symRoot = dhRatchet.iterate(sharedSecret);
-            printDebug("Ratchet DH: clave raíz generada para los ratchets simétricos -> " + AES.bytesToHexString(symRoot));
+                //Calcular secreto compartido e iterar el DHRatchet
+                byte[] sharedSecret = selfKey.getSharedKey(newPK);
+                printDebug("Cliente: secreto DH calculado -> " + AES.bytesToHexString(sharedSecret));
 
-            receiveSymRatchet = new SymmetricKeyRatchet(symRoot);
+                byte[] symRoot = dhRatchet.iterate(sharedSecret);
+                printDebug("Ratchet DH: clave raíz generada para el ratchet simétrico de recepción -> " + AES.bytesToHexString(symRoot));
+
+                receiveSymRatchet = new SymmetricKeyRatchet(symRoot);
+            }
 
             //Crear nuevas claves DH e iterar de nuevo el DHRatchet
-            // dhRatchet = new DiffieHellmanRatchet(Constants.INITIAL_ROOT_KEY);
-            // byte[] sendSymRoot = dhRatchet.iterate(sharedSecret);
-            sendSymRatchet = new SymmetricKeyRatchet(symRoot);
+            selfKey = new DiffieHellmanKey();
+            byte[] sharedSecret = selfKey.getSharedKey(newPK);
+            printDebug("Cliente: secreto DH calculado -> " + AES.bytesToHexString(sharedSecret));
+            byte[] sendSymRoot = dhRatchet.iterate(sharedSecret);
+
+            printDebug("Ratchet DH: clave raíz generada para el ratchet simétrico de envío -> " + AES.bytesToHexString(sendSymRoot));
+            sendSymRatchet = new SymmetricKeyRatchet(sendSymRoot);
         }
 
         byte[] payload = message.getPayload();
