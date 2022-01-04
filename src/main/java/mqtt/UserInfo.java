@@ -65,6 +65,8 @@ public class UserInfo {
 
         //Primera iteracion, o recibir nueva clave publica
         if((otherPK == null) || (!Arrays.equals(newPK.getEncoded(), otherPK.getEncoded()))) {
+
+            //Si es el mensaje de sincronizacion, no crear el ratchet de recepcion
             boolean skipReceiveRatchet = ((otherPK == null) && (message.getPayload() == null));
             otherPK = newPK;
             printDebug("Cliente: nueva PK recibida -> " + AES.bytesToHexString(otherPK.getEncoded()));
